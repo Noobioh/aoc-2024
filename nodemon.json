@@ -1,0 +1,5 @@
+{
+  "watch": ["routes"],
+  "ext": "js",
+  "exec": "npx ts-node ./server.js"
+}
