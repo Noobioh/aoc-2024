@@ -230,32 +230,28 @@ router.get("/part-2", (req, res) => {
   const counts = {};
   let sum = 0;
 
-  testLeftList.forEach((item) => {
-    if (testRightList.includes(item)) {
-      counts[item] = (counts[item] || 0) + 1;
+  rightList.forEach((item) => {
+    if (leftList.includes(item)) {
+      counts[item.toString()] = (counts[item.toString()] || 0) + 1;
     }
   });
 
-  const matchingNumbers = testLeftList.filter((item) =>
-    testRightList.includes(item)
-  );
+  const matchingNumbers = leftList.filter((item) => rightList.includes(item));
 
   matchingNumbers.forEach((item) => {
     const multiple = counts[item] || 0;
     if (multiple === 0) return;
 
-    const firstMultiplication = item * multiple;
-    // const secondMultiplication = firstMultiplication * multiple;
+    const firstMultiplication = item * counts[item];
 
-    sum += firstMultiplication * multiple;
+    sum += firstMultiplication;
   });
-
-  // sum = Object.values(counts).reduce((acc, count) => acc + count, 0);
 
   res.send(
     `Left List: <pre>${JSON.stringify(
-      testLeftList
-    )}</pre><br />Right List: <pre>${JSON.stringify(testRightList)}</pre><br />
+      leftList
+    )}</pre><br />Right List: <pre>${JSON.stringify(rightList)}</pre><br />
+    Matching Numbers: <pre>${JSON.stringify(matchingNumbers)}</pre><br />
     <pre>${JSON.stringify(counts)}</pre><br />Sum: ${sum}`
   );
 });
