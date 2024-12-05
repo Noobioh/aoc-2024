@@ -197,7 +197,7 @@ const testRightList = [4, 3, 5, 3, 9, 3];
 // Define a route
 router.get("/", (req, res) => {
   res.send(
-    `<a href="/day-1/part-1">Go to day one</a><br /><a href="/day-1/part-2">Go to part 2</a>`
+    `<a href="/day-1/part-1">Go to part one</a><br /><a href="/day-1/part-2">Go to part 2</a>`
   );
 });
 
