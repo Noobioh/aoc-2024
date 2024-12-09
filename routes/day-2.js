@@ -2,6 +2,7 @@ const e = require("express");
 const express = require("express");
 const router = express.Router();
 const fs = require("node:fs");
+const console = require("node:console");
 import("node-fetch");
 const app = express();
 
@@ -12,71 +13,62 @@ router.get("/", (req, res) => {
   );
 });
 
-const safeOrUnsafe = (items) => {
-  const safeInput = [];
+function shouldBeSafe(lines) {
+  const ascending = lines.every((int, i) => i === 0 || int > lines[i - 1]);
 
-  items.split(" ").forEach((item, index) => {
-    const nextItem = parseInt(items[index + 1]);
-    const itemInt = parseInt(item);
-    if (index === items.length - 1) {
+  const descending = lines.every((int, i) => i === 0 || int < lines[i - 1]);
+
+  const maxDiffIsThree = lines.every(
+    (num, i) => i === 0 || Math.abs(num - lines[i - 1]) <= 3
+  );
+
+  if (ascending === descending) return false;
+  if (!maxDiffIsThree) return false;
+
+  return true;
+}
+
+function shouldBeSafeDampener(lines) {
+  let safeSum = 0;
+
+  if (!Array.isArray(lines)) throw new Error("Invalid array");
+
+  lines.forEach((arr) => {
+    if (shouldBeSafe(arr)) {
+      safeSum++;
       return;
     }
 
-    if (nextItem > itemInt) {
-      if (nextItem - itemInt <= 2) {
-        safeInput.push("safe");
-      } else if (nextItem - itemInt > 2) {
-        safeInput.push("unsafe");
+    for (let i = 0; i < arr.length; i++) {
+      if (shouldBeSafe(arr.slice(0, i).concat(arr.slice(i + 1)))) {
+        safeSum++;
+        return;
       }
-    } else if (nextItem < itemInt) {
-      if (itemInt - nextItem <= 3) {
-        safeInput.push("safe");
-      } else if (itemInt - nextItem > 3) {
-        safeInput.push("unsafe");
-      }
-    } else {
-      safeInput.push("unsafe");
     }
   });
 
-  const onlySaveItems = safeInput.filter((item) => item === "safe");
-
-  if (onlySaveItems.length === items.length) {
-    return true;
-  }
-
-  return false;
-};
+  return safeSum;
+}
 
 router.get("/part-1", async (req, res) => {
   let array = [];
-
   await fs.readFile(`${__dirname}/day-2-input.txt`, "utf8", (err, data) => {
     if (err) {
       console.error(err);
       error = err;
       res.send(`<pre>${JSON.stringify(error)}</pre>`);
     } else {
-      const lines = data.split("\n");
-      let safeCount = 0;
+      const lines = data.split("\n").map((line) => line.split(" ").map(Number));
 
-      lines.forEach((item) => {
-        const items = item.split(" ");
-
-        if (safeOrUnsafe(item)) {
-          safeCount++;
-        }
-      });
+      console.log(shouldBeSafeDampener(lines));
 
       res.send(
-        `<pre>${JSON.stringify(lines)}</pre>${lines.length} ${safeCount}`
+        `<pre>${JSON.stringify(lines)}</pre>${lines.length} ${
+          lines.filter(shouldBeSafe).length
+        } <br />`
       );
     }
   });
-});
-
-router.get("/part-2", (req, res) => {
-  res.send("Howdy from day two part 2 :)");
 });
 
 module.exports = router;
